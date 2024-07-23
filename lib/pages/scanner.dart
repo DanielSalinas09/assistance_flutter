@@ -1,5 +1,7 @@
+import 'dart:developer';
 import 'dart:io';
 
+import 'package:assistance_flutter/services/assistance.service.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
@@ -56,15 +58,7 @@ class ScannerPage extends StatefulWidget {
                 ),
             ),
           ),
-          Expanded(
-            flex: 1,
-            child: Center(
-              child: (result != null)
-                  ? Text(
-                      'Barcode Type: ${describeEnum(result!.format)}   Data: ${result!.code}')
-                  : Text('Scan a code'),
-            ),
-          )
+          
         ],
       ),
       ),
@@ -75,11 +69,49 @@ class ScannerPage extends StatefulWidget {
     this.controller = controller;
     controller.scannedDataStream.listen((scanData) {
       setState(() {
-        result = scanData;
-        print("RESPONSE======"+result.toString());
+        final assistanceService = AssistanceService();
+        final Map<String, dynamic> body ={
+          "courseId": scanData.code,
+          "studentId": "669356ac7fed0b6dc4ec5296"
+
+        };
+        if(scanData.code!.isNotEmpty){
+          this._showMyDialog();
+        }
+        //assistanceService.takeAsistance();
+        print(scanData!.code);
+        print(scanData.format);
       });
     });
   }
+
+  Future<void> _showMyDialog() async {
+  return showDialog<void>(
+    context: context,
+    barrierDismissible: false, // user must tap button!
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: const Center(child: Text('¡Bien hecho!')),
+        content: const SingleChildScrollView(
+          child: ListBody(
+            children: <Widget>[
+              Text('Su asistencia a sido registrada correctamente'),
+
+            ],
+          ),
+        ),
+        actions: <Widget>[
+          TextButton(
+            child: const Text('Aceptar'),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+          ),
+        ],
+      );
+    },
+  );
+}
 
   @override
   void dispose() {
