@@ -29,17 +29,22 @@ class _HomePageState extends State<HomePage> {
       
       appBar: AppBar(
         backgroundColor: Colors.grey[200],
-        title: const Row(
+        title:  Row(
           children: [
-            CircleAvatar(
+            const CircleAvatar(
               radius: 30,
               backgroundImage: AssetImage('assets/unilibre.png'),
             ),
-            SizedBox(width: 20),
-            Text(
-              'Hola Daniel',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
+            const SizedBox(width: 20),
+            Consumer<ScheduleProviderModel>(
+              builder: (context, scheduleModel, child) {
+                return Text(
+                  'Hola ${scheduleModel.name}',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                );
+              }
+            )
+            
           ],
         ),
       ),

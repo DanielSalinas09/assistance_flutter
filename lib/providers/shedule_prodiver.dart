@@ -11,6 +11,8 @@ class ScheduleProviderModel with ChangeNotifier {
   bool isSheduleLoading = false;
   String? _errorMessage;
   List<Datum> scheduleData = [];
+  String? name;
+
   String get selectedDay => _selectedDay;
 
   void selectDay(String day) {
@@ -28,6 +30,7 @@ class ScheduleProviderModel with ChangeNotifier {
 
   Future<void> getSchedule() async {
     final prefs = PreferencesUser(); 
+    name = prefs.user['name'];
     isSheduleLoading = true;
     _errorMessage = null;
     notifyListeners();

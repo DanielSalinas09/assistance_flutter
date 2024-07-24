@@ -11,7 +11,7 @@ class ScheduleService {
 
   Future<Response> getSchedule(String id) async {
     try {
-      final response =await this.httpService.getRequest('api/courses/schedule-by/student/$id');
+      final response =await this.httpService.getRequest('courses/schedule-by/student/$id');
       print("response $response");
       return response;
      }catch(e){
