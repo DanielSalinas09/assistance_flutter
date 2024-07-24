@@ -1,11 +1,18 @@
 import 'package:assistance_flutter/pages/home/home.dart';
 import 'package:assistance_flutter/pages/login.dart';
+import 'package:assistance_flutter/providers/shedule_prodiver.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import 'pages/scanner.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(MultiProvider(
+    providers: [
+      ChangeNotifierProvider(create: (context) => ScheduleProviderModel()),
+    ],
+    child: const MyApp(),
+  ));
 }
 
 class MyApp extends StatelessWidget {
@@ -21,12 +28,12 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
         scaffoldBackgroundColor: Colors.grey[200],
       ),
-      initialRoute: '/',
+      initialRoute: '/home',
       routes: {
-        '/': (context) => LoginPage(),
+        '/': (context) => const LoginPage(),
+        '/home': (context) => const HomePage(),
         '/scanner': (context) => const ScannerPage(),
       },
     );
   }
 }
-

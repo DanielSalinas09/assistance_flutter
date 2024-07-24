@@ -1,10 +1,18 @@
+import 'package:assistance_flutter/providers/shedule_prodiver.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class ScheduleWidget extends StatelessWidget {
   const ScheduleWidget({super.key});
 
   @override
   Widget build(BuildContext context) {
+      final List<Map<String, Color>> colors = List.generate(20, (index) {
+        return {
+          'color': Colors.primaries[index % Colors.primaries.length][100]!,
+          'lineColor': Colors.primaries[index % Colors.primaries.length],
+        };
+      });
     return  Container(
       padding: const EdgeInsets.all(16.0),
       margin: const EdgeInsets.all(16.0),
@@ -25,22 +33,22 @@ class ScheduleWidget extends StatelessWidget {
           TimeSlot(
             startTime: '08:00 am',
             endTime: '10:00 am',
-            color: Colors.teal[100]!,
-            lineColor: Colors.teal,
+            color: colors[0]['color']!,
+            lineColor: colors[0]['lineColor']!,
             subject: 'Introducción a la ingeniería',
           ),
           TimeSlot(
             startTime: '10:00 am',
             endTime: '12:00 pm',
-            color: Colors.red[100]!,
-            lineColor:  Colors.red,
+            color: colors[1]['color']!,
+            lineColor: colors[1]['lineColor']!,
             subject: 'Ingeniería web',
           ),
           TimeSlot(
             startTime: '01:00 pm',
             endTime: '03:00 pm',
-            color: Colors.purple[100]!,
-            lineColor: Colors.purple,
+            color: colors[2]['color']!,
+            lineColor: colors[2]['lineColor']!,
             subject: 'Cátedra Unilibrista',
           ),
         ],
@@ -61,21 +69,29 @@ class DateChip extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Container(
-          padding: const EdgeInsets.all(12.0),
-          decoration: BoxDecoration(
-            color: Colors.red,
-            borderRadius: BorderRadius.circular(8.0),
-          ),
-          child: Text(
-            weekDay,
-            style: const TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-              fontSize: 18
+       Consumer(builder: (context, ScheduleProviderModel scheduleModel , child){
+          return GestureDetector(
+            onTap: (){
+              scheduleModel.selectDay(weekDay);
+            },
+            child: Container(
+            padding: const EdgeInsets.all(12.0),
+            decoration: BoxDecoration(
+              color: scheduleModel.selectedDay == weekDay ? Colors.red :Colors.red[200],
+              borderRadius: BorderRadius.circular(8.0),
             ),
-          ),
-        ),
+            child: Text(
+              weekDay,
+              style: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: 18
+              ),
+            ),
+                    ),
+          );
+       }),
+
         const SizedBox(height: 5)
       ],
     );
@@ -105,16 +121,28 @@ class TimeSlot extends StatelessWidget {
         children: [
           Column(
             children: [
-              Text(startTime),
+              Text(
+                startTime,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600
+                ),
+              ),
               Container(
                 width: 2,
                 height: 60,
-                color: Colors.grey,
+                color: lineColor,
               ),
-              Text(endTime),
+              Text(
+                endTime,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600
+                ),
+              ),
             ],
           ),
-          SizedBox(width: 10),
+          const SizedBox(width: 10),
           Expanded(
             child: Stack(
               children: [
