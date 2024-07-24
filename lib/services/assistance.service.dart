@@ -9,7 +9,7 @@ class AssistanceService{
 
   Future<Map<String,dynamic>>takeAsistance(Map<String, dynamic> body)async{
      try {
-      final response =await this.httpService.postRequest('assistance/take/teacher', body);
+      final response =await this.httpService.postRequest('assistance/take/student', body);
       final decodeResponse = json.decode(response.body);
       return decodeResponse;
      }catch(e){
