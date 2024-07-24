@@ -39,6 +39,8 @@ dependencies:
   banner_carousel: ^1.2.1
   qr_code_scanner: ^1.0.1
   http: ^1.2.2
+  provider: ^6.1.2
+  shared_preferences: ^2.2.3
 
 dev_dependencies:
   flutter_test:
