@@ -1,12 +1,30 @@
 import 'package:assistance_flutter/pages/home/widgets/shedule_widget.dart';
+import 'package:assistance_flutter/providers/shedule_prodiver.dart';
 import 'package:banner_carousel/banner_carousel.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
   @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<ScheduleProviderModel>(context, listen: false).getSchedule();
+    });
+  }
+
+
+  @override
   Widget build(BuildContext context) {
+    
     return Scaffold(
       
       appBar: AppBar(
@@ -47,7 +65,9 @@ class HomePage extends StatelessWidget {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {},
+        onPressed: () {
+          Navigator.pushNamed(context, '/scanner');
+        },
         backgroundColor: Colors.red[200],
         child: const Icon(Icons.qr_code),
       ),

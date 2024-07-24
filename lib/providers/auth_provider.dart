@@ -39,12 +39,10 @@ class AuthProvider with ChangeNotifier {
         this.user=UserModel.fromJsonMap(prefs.user);
         return true;
       } else {
-        // Handle login error
          _errorMessage = 'Usuario o contraseña incorrectos';
          return false;
       }
     } catch (error) {
-      // Handle request error
       _errorMessage = 'Error en la conexión';
       return false;
     } finally {
