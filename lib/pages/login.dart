@@ -97,7 +97,7 @@ class LoginPage extends StatelessWidget {
                                   : () async {
                                       if (_formKey.currentState!.validate()) {
                                         await authProvider.login(
-                                          _usernameController.text,
+                                          int.parse(_usernameController.text),
                                           _passwordController.text,
                                         );
                                       }

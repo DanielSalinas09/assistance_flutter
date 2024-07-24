@@ -10,7 +10,7 @@ class AuthService {
 
   Future<dynamic> login(Map<String, dynamic> body) async {
     try {
-      final response =await this.httpService.postRequest('auth/login/student', body);
+      final response =await this.httpService.postRequest('api/auth/login/student', body);
       print("RESPONSE: ${response}");
       return response;
      }catch(e){
