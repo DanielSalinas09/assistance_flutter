@@ -9,10 +9,10 @@ class HttpService {
 
   HttpService();
 
-  Future<http.Response> getRequest(String endpoint) async {
+  Future<http.Response> getRequest(String endpoint, String? token) async {
 
     final url = Uri.https(_base,endpoint);
-    final response = await http.get(url, headers: _headers());
+    final response = await http.get(url, headers: _headers(token));
     _handleErrors(response);
     return response;
   }
@@ -33,10 +33,10 @@ class HttpService {
 
   // Add other methods like putRequest, deleteRequest, etc.
 
-  Map<String, String> _headers() {
+  Map<String, String> _headers([String? token]) {
     return {
       'Content-Type': 'application/json',
-      'Authorization': 'Bearer your_api_token', // Example for auth header
+      'Authorization': 'Bearer $token', // Example for auth header
     };
   }
 

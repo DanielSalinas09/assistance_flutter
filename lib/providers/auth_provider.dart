@@ -32,11 +32,9 @@ class AuthProvider with ChangeNotifier {
         
         
       } else {
-        // Handle login error
          _errorMessage = 'Usuario o contraseña incorrectos';
       }
     } catch (error) {
-      // Handle request error
       _errorMessage = 'Error en la conexión';
     } finally {
       _isLoading = false;
