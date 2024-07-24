@@ -1,4 +1,6 @@
+import 'package:assistance_flutter/pages/home/home.dart';
 import 'package:assistance_flutter/pages/login.dart';
+import 'package:assistance_flutter/providers/assistance_provider.dart';
 import 'package:assistance_flutter/providers/auth_provider.dart';
 import 'package:assistance_flutter/services/persistent_storage_service.dart';
 import 'package:flutter/material.dart';
@@ -22,6 +24,7 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ChangeNotifierProvider(create: (_) => AssistanceProvider()),
       ],
       child:MaterialApp(
       title: 'Flutter Demo',
@@ -33,6 +36,7 @@ class MyApp extends StatelessWidget {
       initialRoute: '/',
       routes: {
         '/': (context) => LoginPage(),
+        '/home': (context) => HomePage(),
         '/scanner': (context) => const ScannerPage(),
       },
     ));

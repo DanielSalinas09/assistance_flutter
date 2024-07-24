@@ -11,14 +11,14 @@ class HttpService {
 
   Future<http.Response> getRequest(String endpoint) async {
 
-    final url = Uri.https(_base,endpoint);
+    final url = Uri.https(_base,'api/'+endpoint);
     final response = await http.get(url, headers: _headers());
     _handleErrors(response);
     return response;
   }
 
   Future<http.Response> postRequest(String endpoint, Map<String, dynamic> body) async {
-    final url = Uri.https(_base,endpoint);
+    final url = Uri.https(_base,'api/'+endpoint);
     final response = await http.post(url, headers: _headers(), body: json.encode(body));
     _handleErrors(response);
     return response;

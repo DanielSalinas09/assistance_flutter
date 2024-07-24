@@ -14,215 +14,171 @@ class LoginPage extends StatelessWidget {
     return Scaffold(
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
-        child:  Center(
-            child: Form(
-              key: this._formKey,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const SizedBox(
-                    height: 50,
-                  ),
-                  Image.asset(
-                    'assets/unilibre.png',
-                    height: 150, // Ajusta el tamaño según sea necesario
-                    fit: BoxFit.cover,
-                  ),
-                  const SizedBox(height: 40),
-                  const Text(
-                    'Iniciar Sesión',
-                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.w700),
-                  ),
-                  const SizedBox(height: 20),
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Usuario',
-                        style: TextStyle(fontWeight: FontWeight.w700),
+        child: Center(
+          child: Form(
+            key: this._formKey,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const SizedBox(
+                  height: 50,
+                ),
+                Image.asset(
+                  'assets/unilibre.png',
+                  height: 150, // Ajusta el tamaño según sea necesario
+                  fit: BoxFit.cover,
+                ),
+                const SizedBox(height: 40),
+                const Text(
+                  'Iniciar Sesión',
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.w700),
+                ),
+                const SizedBox(height: 20),
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Usuario',
+                      style: TextStyle(fontWeight: FontWeight.w700),
+                    ),
+                    const SizedBox(height: 8),
+                    TextFormField(
+                      controller: _usernameController,
+                      keyboardType: TextInputType.number,
+                      decoration: const InputDecoration(
+                        border: OutlineInputBorder(),
                       ),
-                      const SizedBox(height: 8),
-                      TextFormField(
-                        controller: _usernameController,
-                        keyboardType:TextInputType.number,
-                        decoration: const InputDecoration(
-                          border: OutlineInputBorder(),
-                        ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty || value.length<5) {
-                            return 'Por favor ingresa su DNI';
-                          }
-                          return null;
-                        },
+                      validator: (value) {
+                        if (value == null ||
+                            value.isEmpty ||
+                            value.length < 5) {
+                          return 'Por favor ingresa su DNI';
+                        }
+                        return null;
+                      },
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 20),
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text('Contraseña',
+                        style: TextStyle(fontWeight: FontWeight.w700)),
+                    const SizedBox(height: 8),
+                    TextFormField(
+                      controller: _passwordController,
+                      obscureText: true,
+                      decoration: const InputDecoration(
+                        border: OutlineInputBorder(),
+                        suffixIcon: Icon(Icons.visibility),
                       ),
-                    ],
-                  ),
-                  const SizedBox(height: 20),
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text('Contraseña',
-                          style: TextStyle(fontWeight: FontWeight.w700)),
-                      const SizedBox(height: 8),
-                      TextFormField(
-                        controller: _passwordController,
-                        obscureText: true,
-                        decoration: const InputDecoration(
-                          border: OutlineInputBorder(),
-                          suffixIcon: Icon(Icons.visibility),
-                        ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Por favor ingresa tu contraseña';
-                          }else if(value.length<6){
-                            return 'La contraseña debe tener minimo 6 caracteres';
-                          }
-                          return null;
-                        },
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 30),
-                  Consumer<AuthProvider>(
-                    builder: (context, authProvider, child) {
-                      return Column(
-                        children: [
-                          SizedBox(
-                            width: double.infinity,
-                            child: ElevatedButton(
-                              onPressed: authProvider.isLoading
-                                  ? null
-                                  : () async {
-                                      if (_formKey.currentState!.validate()) {
-                                        await authProvider.login(
-                                          _usernameController.text,
-                                          _passwordController.text,
-                                        );
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Por favor ingresa tu contraseña';
+                        } else if (value.length < 6) {
+                          return 'La contraseña debe tener minimo 6 caracteres';
+                        }
+                        return null;
+                      },
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 30),
+                Consumer<AuthProvider>(
+                  builder: (context, authProvider, child) {
+                    return Column(
+                      children: [
+                        SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton(
+                            onPressed: authProvider.isLoading
+                                ? null
+                                : () async {
+                                    if (_formKey.currentState!.validate()) {
+                                      final response = await authProvider.login(
+                                        _usernameController.text,
+                                        _passwordController.text,
+                                      );
+                                      if (response) {
+                                        Navigator.pushNamedAndRemoveUntil(
+                                            context,
+                                            '/home',
+                                            (Route<dynamic> route) => false);
+                                      } else {
+                                        this.showMyDialog(context);
                                       }
-                                    },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFFEB1A0B),
-                                padding: const EdgeInsets.symmetric(
-                                    vertical: 15),
-                              ),
-                              child: authProvider.isLoading
-                                  ? const SizedBox(
+                                    }
+                                  },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFFEB1A0B),
+                              padding: const EdgeInsets.symmetric(vertical: 15),
+                            ),
+                            child: authProvider.isLoading
+                                ? const SizedBox(
                                     width: 20,
                                     height: 20,
                                     child: CircularProgressIndicator(
                                       strokeWidth: 3.0,
-                                        valueColor: AlwaysStoppedAnimation<Color>(
-                                            Colors.white),
-                                      ),
+                                      valueColor: AlwaysStoppedAnimation<Color>(
+                                          Colors.white),
+                                    ),
                                   )
-                                  : const Text(
+                                : const Text(
                                     'Iniciar sesión',
-                                    style: TextStyle(
-                                      color: Colors.white
-                                    ),),
-                            ),
+                                    style: TextStyle(color: Colors.white),
+                                  ),
                           ),
-                          const SizedBox(height: 10),
-                          TextButton(
-                            onPressed: () {
-                              // Handle forgot password
-                            },
-                            child: const Text(
-                              '¿Has olvidado tu contraseña?',
-                              style: TextStyle(color: Colors.grey),
-                            ),
+                        ),
+                        const SizedBox(height: 10),
+                        TextButton(
+                          onPressed: () {
+                            
+                          },
+                          child: const Text(
+                            '¿Has olvidado tu contraseña?',
+                            style: TextStyle(color: Colors.grey),
                           ),
-                        ],
-                      );
-                    },
-                  ),
-                ],
-              ),
+                        ),
+                      ],
+                    );
+                  },
+                ),
+              ],
             ),
           ),
         ),
-  
+      ),
+    );
+  }
+
+  Future<void> showMyDialog(BuildContext context) async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Center(child: Text('¡Error al iniciar sesión!')),
+          content: const SingleChildScrollView(
+            child: ListBody(
+              children: <Widget>[
+                Text(
+                    'Ha ocuurido un error al iniciar sesion, por favor intente nuevamente'),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Aceptar'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
     );
   }
 }
-
-
-
-
-
-
-// class LoginPage extends StatefulWidget {
-//   const LoginPage({super.key});
-
-//   @override
-//   State<LoginPage> createState() => _LoginPageState();
-// }
-
-// class _LoginPageState extends State<LoginPage> {
-
-//   final _formKey = GlobalKey<FormState>();
-//   final _usernameController = TextEditingController();
-//   final _passwordController = TextEditingController();
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       body: Padding(
-//         padding: const EdgeInsets.all(16.0),
-//         child: Column(
-//           mainAxisAlignment: MainAxisAlignment.center,
-//           children: <Widget>[
-//             // Imagen en la parte superior
-//             Image.asset(
-//               'assets/unilibre.png',
-//               height: 150, // Ajusta el tamaño según sea necesario
-//               fit: BoxFit.cover,
-//             ),
-//             const SizedBox(height: 20), // Espacio entre la imagen y el formulario
-//             // Formulario
-//             Form(
-//               key: _formKey,
-//               child: Column(
-//                 children: <Widget>[
-//                   TextFormField(
-//                     controller: _usernameController,
-//                     decoration: const InputDecoration(labelText: 'Username'),
-//                     validator: (value) {
-//                       if (value == null || value.isEmpty) {
-//                         return 'Please enter a username';
-//                       }
-//                       return null;
-//                     },
-//                   ),
-//                   TextFormField(
-//                     controller: _passwordController,
-//                     decoration: InputDecoration(labelText: 'Password'),
-//                     obscureText: true,
-//                     validator: (value) {
-//                       if (value == null || value.isEmpty) {
-//                         return 'Please enter a password';
-//                       }
-//                       return null;
-//                     },
-//                   ),
-//                   SizedBox(height: 20),
-//                   ElevatedButton(
-//                     onPressed: () {
-//                       Navigator.pushNamed(context, '/scanner');
-//                     },
-//                     child: Text('Iniciar sesíon'),
-//                   ),
-//                   SizedBox(height: 20),
-//                   TextButton(onPressed: (){}, 
-//                   child: Text('¿Has olvidado tu contraseña?'),)
-//                 ],
-//               ),
-//             ),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-// }

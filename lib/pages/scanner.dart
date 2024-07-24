@@ -1,7 +1,10 @@
 import 'dart:io';
 
+import 'package:assistance_flutter/providers/assistance_provider.dart';
+import 'package:assistance_flutter/providers/auth_provider.dart';
 import 'package:assistance_flutter/services/assistance.service.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 
 class ScannerPage extends StatefulWidget {
@@ -66,27 +69,36 @@ class ScannerPage extends StatefulWidget {
   void _onQRViewCreated(QRViewController controller) {
     this.controller = controller;
     controller.scannedDataStream.listen((scanData) {
-      setState(() {
-        final assistanceService = AssistanceService();
-        final Map<String, dynamic> body ={
+      setState(()async {
+        
+        
+        if(scanData.code!.isNotEmpty){
+
+          final assistanceProvider = Provider.of<AssistanceProvider>(context, listen: false);
+          final authProvider = Provider.of<AuthProvider>(context, listen: false);
+
+          final Map<String, dynamic> body ={
           "courseId": scanData.code,
-          "studentId": "669356ac7fed0b6dc4ec5296"
+          "studentId": authProvider.user.id
 
         };
-        if(scanData.code!.isNotEmpty){
-          this._showMyDialog();
+          final response= await assistanceProvider.takeAssistance(body);
+          if(response){
+            this._showMyDialogSuccess();
+          }else{
+            this._showMyDialogError();
+          }
+          
         }
-        //assistanceService.takeAsistance();
-        print(scanData!.code);
-        print(scanData.format);
+
       });
     });
   }
 
-  Future<void> _showMyDialog() async {
+  Future<void> _showMyDialogSuccess() async {
   return showDialog<void>(
     context: context,
-    barrierDismissible: false, // user must tap button!
+    barrierDismissible: false,
     builder: (BuildContext context) {
       return AlertDialog(
         title: const Center(child: Text('¡Bien hecho!')),
@@ -94,6 +106,35 @@ class ScannerPage extends StatefulWidget {
           child: ListBody(
             children: <Widget>[
               Text('Su asistencia a sido registrada correctamente'),
+
+            ],
+          ),
+        ),
+        actions: <Widget>[
+          TextButton(
+            child: const Text('Aceptar'),
+            onPressed: () {
+              Navigator.pushNamedAndRemoveUntil(context, '/home', (Route<dynamic> route) => false);
+            },
+          ),
+        ],
+      );
+    },
+  );
+}
+
+
+Future<void> _showMyDialogError() async {
+  return showDialog<void>(
+    context: context,
+    barrierDismissible: false, 
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: const Center(child: Text('¡Ha ocurrido un error!')),
+        content: const SingleChildScrollView(
+          child: ListBody(
+            children: <Widget>[
+              Text('Ha ocurrido un error, por favor intente nuevamente.'),
 
             ],
           ),
