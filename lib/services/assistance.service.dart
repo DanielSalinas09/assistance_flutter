@@ -1,5 +1,4 @@
 import 'package:assistance_flutter/services/http_service.dart';
-import 'package:http/http.dart' as http;
 
 
 class AssistanceService{

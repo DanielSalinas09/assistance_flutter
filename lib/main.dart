@@ -1,18 +1,26 @@
-import 'package:assistance_flutter/pages/home/home.dart';
 import 'package:assistance_flutter/pages/login.dart';
+import 'package:assistance_flutter/pages/home/home.dart';
 import 'package:assistance_flutter/providers/shedule_prodiver.dart';
+import 'package:assistance_flutter/providers/auth_provider.dart';
+import 'package:assistance_flutter/services/persistent_storage_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'pages/scanner.dart';
 
-void main() {
-  runApp(MultiProvider(
-    providers: [
-      ChangeNotifierProvider(create: (context) => ScheduleProviderModel()),
-    ],
-    child: const MyApp(),
-  ));
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  final prefs = PreferencesUser();
+  await prefs.initPrefs();
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (context) => ScheduleProviderModel()),
+      ],
+      child: const MyApp(),
+    )
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -21,7 +29,11 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => AuthProvider()),
+      ],
+      child:MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
@@ -30,10 +42,10 @@ class MyApp extends StatelessWidget {
       ),
       initialRoute: '/',
       routes: {
-        '/': (context) => const LoginPage(),
+        '/': (context) => LoginPage(),
         '/home': (context) => const HomePage(),
         '/scanner': (context) => const ScannerPage(),
       },
-    );
+    ));
   }
 }
