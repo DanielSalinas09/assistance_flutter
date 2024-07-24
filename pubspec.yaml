@@ -37,6 +37,8 @@ dependencies:
   cupertino_icons: ^1.0.6
   qr_bar_code_scanner_dialog: ^0.0.5
   banner_carousel: ^1.2.1
+  qr_code_scanner: ^1.0.1
+  http: ^1.2.2
 
 dev_dependencies:
   flutter_test:

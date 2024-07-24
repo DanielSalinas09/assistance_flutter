@@ -2,6 +2,8 @@ import 'package:assistance_flutter/pages/home/home.dart';
 import 'package:assistance_flutter/pages/login.dart';
 import 'package:flutter/material.dart';
 
+import 'pages/scanner.dart';
+
 void main() {
   runApp(const MyApp());
 }
@@ -19,7 +21,11 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
         scaffoldBackgroundColor: Colors.grey[200],
       ),
-      home: HomePage(),
+      initialRoute: '/',
+      routes: {
+        '/': (context) => LoginPage(),
+        '/scanner': (context) => const ScannerPage(),
+      },
     );
   }
 }
