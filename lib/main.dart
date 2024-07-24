@@ -7,7 +7,7 @@ import 'package:provider/provider.dart';
 import 'pages/scanner.dart';
 
 void main() async {
-
+  WidgetsFlutterBinding.ensureInitialized();
   final prefs = PreferencesUser(); 
   await prefs.initPrefs();
   runApp(const MyApp());
