@@ -15,6 +15,12 @@ class AssistanceProvider with ChangeNotifier {
   String? get errorMessage => _errorMessage;
 
   Future<bool> takeAssistance(Map<String,dynamic>body) async {
+
+    if (_isLoading) {
+      // Si ya está cargando, evita hacer otra solicitud
+      return false;
+    }
+
     _isLoading = true;
     _errorMessage = null;
 
