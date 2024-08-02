@@ -52,6 +52,6 @@
 	<string>This app needs camera access to scan QR codes</string>
 
 	<key>NSFaceIDUsageDescription</key>
-<string>We use Face ID to protect your data</string>
+	<string>We use Face ID to protect your data</string>
 </dict>
 </plist>
