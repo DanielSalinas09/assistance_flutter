@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:assistance_flutter/providers/auth_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -21,7 +23,7 @@ class LoginPage extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const SizedBox(
-                  height: 50,
+                  height: 100,
                 ),
                 Image.asset(
                   'assets/unilibre.png',
@@ -31,7 +33,11 @@ class LoginPage extends StatelessWidget {
                 const SizedBox(height: 40),
                 const Text(
                   'Iniciar Sesión',
-                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.w700),
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.w700,
+                    //color: Colors.grey
+                  ),
                 ),
                 const SizedBox(height: 20),
                 Column(
@@ -134,14 +140,23 @@ class LoginPage extends StatelessWidget {
                         ),
                         const SizedBox(height: 10),
                         TextButton(
-                          onPressed: () {
-                            
-                          },
+                          onPressed: () {},
                           child: const Text(
                             '¿Has olvidado tu contraseña?',
                             style: TextStyle(color: Colors.grey),
                           ),
                         ),
+                        const SizedBox(height: 30),
+                        IconButton(
+                            onPressed: () {
+                              signInFingerprint(context);
+                            },
+                            iconSize: 50,
+                            icon: Icon(Icons.fingerprint)),
+                        const Text(
+                          'Ingresa con huella',
+                          style: TextStyle(color: Colors.grey),
+                        )
                       ],
                     );
                   },
@@ -178,6 +193,55 @@ class LoginPage extends StatelessWidget {
             ),
           ],
         );
+      },
+    );
+  }
+
+  Future<void> signInFingerprint(BuildContext context) async {
+    final authProvider = Provider.of<AuthProvider>(context);
+    final response = await authProvider.authenticateWithFingerprint();
+    log("RESPUESTA: $response");
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return Consumer<AuthProvider>(builder: (context, authProvider, child) {
+          return AlertDialog(
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                authProvider.isLoadingFingerprint
+                    ? const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 3.0,
+                          valueColor: AlwaysStoppedAnimation<Color>(Colors.red),
+                        ),
+                      )
+                    : const Icon(
+                        Icons.fingerprint,
+                        size: 90,
+                      ),
+                const Text(
+                  'Verifica tu huella digital',
+                  style: TextStyle(color: Colors.grey),
+                ),
+                const SizedBox(
+                  height: 15,
+                ),
+                TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    child: const Text(
+                      'Cancelar',
+                      style: TextStyle(color: Color(0xFFEB1A0B)),
+                    ))
+              ],
+            ),
+          );
+        });
       },
     );
   }

@@ -36,5 +36,14 @@ class PreferencesUser {
   set user (Map<String,dynamic> value){
     prefs.setString('user', jsonEncode(value));
   }
+
+  //Get user
+  Map<String,dynamic> get userAuth{
+    return jsonDecode(prefs.getString('userAuth')??'{}');
+  }
+  //Setter user
+  set userAuth (Map<String,dynamic> value){
+    prefs.setString('userAuth', jsonEncode(value));
+  }
    
 }
