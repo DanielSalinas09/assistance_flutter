@@ -45,5 +45,13 @@ class PreferencesUser {
   set userAuth (Map<String,dynamic> value){
     prefs.setString('userAuth', jsonEncode(value));
   }
+
+   bool get fingerPrint {
+    return prefs.getBool('fingerPrint ')??false;
+  }
+  //Setter token
+  set fingerPrint (bool value){
+    prefs.setBool('fingerPrint', value);
+  }
    
 }

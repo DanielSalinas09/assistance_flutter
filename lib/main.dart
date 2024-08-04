@@ -1,14 +1,17 @@
+import 'package:assistance_flutter/pages/auth/confirmForgotPassword.dart';
+import 'package:assistance_flutter/pages/auth/forgotPassword.dart';
 import 'package:assistance_flutter/pages/home/home.dart';
-import 'package:assistance_flutter/pages/login.dart';
+import 'package:assistance_flutter/pages/auth/login.dart';
 import 'package:assistance_flutter/providers/assistance_provider.dart';
-import 'package:assistance_flutter/pages/home/home.dart';
+import 'package:assistance_flutter/providers/confirm_forgot_password.dart';
 import 'package:assistance_flutter/providers/shedule_prodiver.dart';
 import 'package:assistance_flutter/providers/auth_provider.dart';
 import 'package:assistance_flutter/services/persistent_storage_service.dart';
+import 'package:assistance_flutter/splash_screend.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import 'pages/scanner.dart';
+import 'pages/scanner/scanner.dart';
 
 
 void main() async {
@@ -16,12 +19,7 @@ void main() async {
   final prefs = PreferencesUser();
   await prefs.initPrefs();
   runApp(
-    MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (context) => ScheduleProviderModel()),
-      ],
-      child: const MyApp(),
-    )
+     const MyApp(),
   );
 }
 
@@ -35,6 +33,8 @@ class MyApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => AssistanceProvider()),
+        ChangeNotifierProvider(create: (_) => ConfirmForgotPasswordProvider()),
+         ChangeNotifierProvider(create: (context) => ScheduleProviderModel()),
       ],
       child:MaterialApp(
       debugShowCheckedModeBanner: false,
@@ -46,7 +46,10 @@ class MyApp extends StatelessWidget {
       ),
       initialRoute: '/',
       routes: {
-        '/': (context) => LoginPage(),
+        '/': (context) => const SplashScreen(),
+        '/login': (context) => LoginPage(),
+        '/forgot-password': (context) => ForgotpasswordPage(),
+        '/confirm-forgot-password': (context) => ConfirmForgotPasswordPage(),
         '/home': (context) => const HomePage(),
         '/scanner': (context) => const ScannerPage(),
       },

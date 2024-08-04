@@ -1,4 +1,3 @@
-import 'package:assistance_flutter/models/user_model.dart';
 import 'package:assistance_flutter/services/assistance.service.dart';
 import 'package:flutter/material.dart';
 

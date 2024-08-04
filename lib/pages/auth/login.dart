@@ -13,6 +13,14 @@ class LoginPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      final response = await authProvider.canUseFingerprintLogin();
+      if (response) {
+        signInFingerprint(context);
+      }
+    });
+
     return Scaffold(
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
@@ -67,31 +75,42 @@ class LoginPage extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 20),
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text('Contraseña',
-                        style: TextStyle(fontWeight: FontWeight.w700)),
-                    const SizedBox(height: 8),
-                    TextFormField(
-                      controller: _passwordController,
-                      obscureText: true,
-                      decoration: const InputDecoration(
-                        border: OutlineInputBorder(),
-                        suffixIcon: Icon(Icons.visibility),
+                Consumer<AuthProvider>(
+                    builder: (context, authProvider, child) {
+                  return Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text('Contraseña',
+                          style: TextStyle(fontWeight: FontWeight.w700)),
+                      const SizedBox(height: 8),
+                      TextFormField(
+                        controller: _passwordController,
+                        obscureText: authProvider.visibilityPassword,
+                        decoration:  InputDecoration(
+                          border: const OutlineInputBorder(),
+                          suffixIcon: IconButton(
+                          icon: Icon(
+                            authProvider.visibilityPassword
+                              ? Icons.visibility
+                              : Icons.visibility_off),
+                          onPressed: () {
+                            authProvider.toggleVisibility();
+                          },
+                        ),
+                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Por favor ingresa tu contraseña';
+                          } else if (value.length < 6) {
+                            return 'La contraseña debe tener minimo 6 caracteres';
+                          }
+                          return null;
+                        },
                       ),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Por favor ingresa tu contraseña';
-                        } else if (value.length < 6) {
-                          return 'La contraseña debe tener minimo 6 caracteres';
-                        }
-                        return null;
-                      },
-                    ),
-                  ],
-                ),
+                    ],
+                  );
+                }),
                 const SizedBox(height: 30),
                 Consumer<AuthProvider>(
                   builder: (context, authProvider, child) {
@@ -114,7 +133,7 @@ class LoginPage extends StatelessWidget {
                                             '/home',
                                             (Route<dynamic> route) => false);
                                       } else {
-                                        this.showMyDialog(context);
+                                        errorFingerprint(context);
                                       }
                                     }
                                   },
@@ -140,7 +159,9 @@ class LoginPage extends StatelessWidget {
                         ),
                         const SizedBox(height: 10),
                         TextButton(
-                          onPressed: () {},
+                          onPressed: () {
+                            Navigator.pushNamed(context, '/forgot-password');
+                          },
                           child: const Text(
                             '¿Has olvidado tu contraseña?',
                             style: TextStyle(color: Colors.grey),
@@ -148,8 +169,17 @@ class LoginPage extends StatelessWidget {
                         ),
                         const SizedBox(height: 30),
                         IconButton(
-                            onPressed: () {
-                              signInFingerprint(context);
+                            onPressed: () async {
+                              final authProvider = Provider.of<AuthProvider>(
+                                  context,
+                                  listen: false);
+                              final response =
+                                  await authProvider.canUseFingerprintLogin();
+                              if (response) {
+                                signInFingerprint(context);
+                              } else {
+                                errorFingerprint(context);
+                              }
                             },
                             iconSize: 50,
                             icon: Icon(Icons.fingerprint)),
@@ -198,10 +228,9 @@ class LoginPage extends StatelessWidget {
   }
 
   Future<void> signInFingerprint(BuildContext context) async {
-    final authProvider = Provider.of<AuthProvider>(context);
-    final response = await authProvider.authenticateWithFingerprint();
-    log("RESPUESTA: $response");
-    return showDialog<void>(
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+
+    showDialog<void>(
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
@@ -211,13 +240,24 @@ class LoginPage extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 authProvider.isLoadingFingerprint
-                    ? const SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 3.0,
-                          valueColor: AlwaysStoppedAnimation<Color>(Colors.red),
-                        ),
+                    ? const Column(
+                        children: [
+                          SizedBox(
+                            height: 25,
+                          ),
+                          SizedBox(
+                            width: 40,
+                            height: 40,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 3.0,
+                              valueColor:
+                                  AlwaysStoppedAnimation<Color>(Colors.red),
+                            ),
+                          ),
+                          SizedBox(
+                            height: 25,
+                          )
+                        ],
                       )
                     : const Icon(
                         Icons.fingerprint,
@@ -241,6 +281,50 @@ class LoginPage extends StatelessWidget {
               ],
             ),
           );
+        });
+      },
+    );
+    final response = await authProvider.authenticateWithFingerprint();
+    log("RESPUESTA: $response");
+    if (response) {
+      Navigator.pushNamedAndRemoveUntil(
+          context, '/home', (Route<dynamic> route) => false);
+    } else {
+      errorFingerprint(context);
+    }
+  }
+
+  Future<void> errorFingerprint(BuildContext context) async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return Consumer<AuthProvider>(builder: (context, authProvider, child) {
+          return AlertDialog(
+              title: const Center(
+                  child: Text(
+                '¡Información de Inicio de Sesión!',
+                textAlign: TextAlign.center,
+                style: TextStyle(),
+              )),
+              content: SingleChildScrollView(
+                child: ListBody(children: <Widget>[
+                  Text(authProvider.errorMessage),
+                ]),
+              ),
+              actions: <Widget>[
+                TextButton(
+                  child: const Text(
+                    'Aceptar',
+                    style: TextStyle(
+                      color: const Color(0xFFEB1A0B),
+                    ),
+                  ),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ]);
         });
       },
     );

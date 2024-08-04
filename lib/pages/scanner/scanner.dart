@@ -104,9 +104,9 @@ class _ScannerPageState extends State<ScannerPage> {
 
   void _onQRViewCreated(QRViewController controller) {
     this.controller = controller;
-
+    
     controller.scannedDataStream.listen((scanData) async {
-      if (scanData.code!.isNotEmpty ?? false) {
+      if (scanData.code!.isNotEmpty) {
         final assistanceProvider =
             Provider.of<AssistanceProvider>(context, listen: false);
         final authProvider = Provider.of<AuthProvider>(context, listen: false);
