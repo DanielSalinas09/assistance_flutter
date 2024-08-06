@@ -1,11 +1,12 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:assistance_flutter/providers/assistance_provider.dart';
 import 'package:assistance_flutter/providers/auth_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
-import 'package:qr_code_scanner/qr_code_scanner.dart';
 
 class ScannerPage extends StatefulWidget {
   const ScannerPage({super.key});
@@ -14,16 +15,59 @@ class ScannerPage extends StatefulWidget {
   State<ScannerPage> createState() => _ScannerPageState();
 }
 
-class _ScannerPageState extends State<ScannerPage> {
+class _ScannerPageState extends State<ScannerPage> with WidgetsBindingObserver {
   final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
-  QRViewController? controller;
-   bool flashOn = false;
   double zoomLevel = 1.0;
-
+  bool isloading = false;
+  final MobileScannerController controller = MobileScannerController(
+    detectionSpeed: DetectionSpeed.noDuplicates,
+    facing: CameraFacing.back,
+    torchEnabled: false,
+    formats: [BarcodeFormat.qrCode],
+  );
+  double _zoomFactor = 0.0;
+  StreamSubscription<Object?>? _subscription;
   @override
   void initState() {
     super.initState();
+    // Start listening to lifecycle changes.
+    WidgetsBinding.instance.addObserver(this);
+
+    // Start listening to the barcode events.
+    _subscription = controller.barcodes.listen(_handleBarcode);
+
+    // Finally, start the scanner itself.
+    unawaited(controller.start());
+
     _requestCameraPermission();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    // If the controller is not ready, do not try to start or stop it.
+    // Permission dialogs can trigger lifecycle changes before the controller is ready.
+    if (!controller.value.isInitialized) {
+      return;
+    }
+
+    switch (state) {
+      case AppLifecycleState.detached:
+      case AppLifecycleState.hidden:
+      case AppLifecycleState.paused:
+        return;
+      case AppLifecycleState.resumed:
+        // Restart the scanner when the app is resumed.
+        // Don't forget to resume listening to the barcode events.
+        _subscription = controller.barcodes.listen(_handleBarcode);
+
+        unawaited(controller.start());
+      case AppLifecycleState.inactive:
+        // Stop the scanner when the app is paused.
+        // Also stop the barcode events subscription.
+        unawaited(_subscription?.cancel());
+        _subscription = null;
+        unawaited(controller.stop());
+    }
   }
 
   Future<void> _requestCameraPermission() async {
@@ -43,98 +87,105 @@ class _ScannerPageState extends State<ScannerPage> {
   @override
   void reassemble() {
     super.reassemble();
-    if (Platform.isAndroid) {
-      controller!.pauseCamera();
-    } else if (Platform.isIOS) {
-      controller!.resumeCamera();
-    }
+  }
+
+  Widget _buildZoomScaleSlider() {
+    return ValueListenableBuilder(
+      valueListenable: controller,
+      builder: (context, state, child) {
+        if (!state.isInitialized || !state.isRunning) {
+          return const SizedBox.shrink();
+        }
+
+        final TextStyle labelStyle = Theme.of(context)
+            .textTheme
+            .headlineMedium!
+            .copyWith(color: Colors.white, fontSize: 18);
+
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Text(
+                '0%',
+                overflow: TextOverflow.fade,
+                style: labelStyle,
+              ),
+              Slider(
+                value: _zoomFactor,
+                activeColor: Colors.red,
+                onChanged: (value) {
+                  controller.setZoomScale(_zoomFactor);
+                  setState(() {
+                    _zoomFactor = value;
+                  });
+                },
+              ),
+              Text(
+                '100%',
+                overflow: TextOverflow.fade,
+                style: labelStyle,
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   @override
   Widget build(BuildContext context) {
+    final sizeScreen = MediaQuery.of(context).size;
     return MaterialApp(
       home: Scaffold(
-        appBar: AppBar(
-          title: const Text('Scanner QR'),
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back),
-            onPressed: () {
-              Navigator.pop(context);
-            },
-          ),
-        ),
-        body:  Stack(
-        children: [
-          QRView(
-          key: qrKey,
-          onQRViewCreated: _onQRViewCreated,
-          overlay:
-              QrScannerOverlayShape(borderColor: Colors.red, borderRadius: 10),
-          onPermissionSet: (ctrl, p) => _onPermissionSet(context, ctrl, p),
-        ),
-        Positioned(
-            top: 20,
-            left: 20,
-            right: 20,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                IconButton(
-                  icon: Icon(
-                    flashOn ? Icons.flash_on : Icons.flash_off,
-                    color: Colors.white,
-                  ),
-                  onPressed: () async {
-                    if (controller != null) {
-                      await controller!.toggleFlash();
-                      setState(() {
-                        flashOn = !flashOn;
-                      });
-                    }
-                  },
-                ),
-                
-              ],
+          appBar: AppBar(
+            title: const Text('Scanner QR'),
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back),
+              onPressed: () {
+                Navigator.pop(context);
+              },
             ),
           ),
-        ])
-      ),
+          body: Stack(children: [
+            MobileScanner(
+              controller: controller,
+              fit: BoxFit.cover,
+            ),
+            Center(
+              child: Container(
+                width: 220,
+                height: 220,
+                decoration: BoxDecoration(
+                  color: Colors.transparent,
+                  border: Border.all(color: Colors.red, width: 2.0),
+                ),
+                child: Stack(
+                  children: [
+                    Positioned.fill(
+                      child: Container(
+                        color: Colors.transparent,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            Center(
+              child: ClipPath(
+                clipper: QRClipper(),
+                child: Container(
+                  color: Colors.black54, // semi-transparent black overlay
+                ),
+              ),
+            ),
+            Positioned(
+                bottom: 0.0,
+                left: sizeScreen.width * 0.15,
+                child: _buildZoomScaleSlider())
+          ])),
     );
-  }
-
-  void _onQRViewCreated(QRViewController controller) {
-    this.controller = controller;
-    
-    controller.scannedDataStream.listen((scanData) async {
-      if (scanData.code!.isNotEmpty) {
-        final assistanceProvider =
-            Provider.of<AssistanceProvider>(context, listen: false);
-        final authProvider = Provider.of<AuthProvider>(context, listen: false);
-
-        final Map<String, dynamic> body = {
-          "courseId": scanData.code,
-          "studentId": authProvider.user.id
-        };
-
-        if (!assistanceProvider.isLoading) {
-          final response = await assistanceProvider.takeAssistance(body);
-          if (response) {
-            _showMyDialogSuccess();
-          } else {
-            _showMyDialogError();
-          }
-        }
-      }
-    });
-  }
-
-  void _onPermissionSet(BuildContext context, QRViewController ctrl, bool p) {
-    print('${DateTime.now().toIso8601String()}_onPermissionSet $p');
-    if (!p) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('no Permission')),
-      );
-    }
   }
 
   Future<void> _showMyDialogSuccess() async {
@@ -193,8 +244,56 @@ class _ScannerPageState extends State<ScannerPage> {
   }
 
   @override
-  void dispose() {
-    controller?.dispose();
+  Future<void> dispose() async {
+    // Stop listening to lifecycle changes.
+    WidgetsBinding.instance.removeObserver(this);
+    // Stop listening to the barcode events.
+    unawaited(_subscription?.cancel());
+    _subscription = null;
+    // Dispose the widget itself.
     super.dispose();
+    // Finally, dispose of the controller.
+    await controller.dispose();
   }
+
+  void _handleBarcode(BarcodeCapture qr) async {
+    print(qr.barcodes[0].rawValue);
+    final assistanceProvider =
+        Provider.of<AssistanceProvider>(context, listen: false);
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+
+    final Map<String, dynamic> body = {
+      "courseId": qr.barcodes[0].rawValue,
+      "studentId": authProvider.user.id
+    };
+
+    if (!assistanceProvider.isLoading) {
+      final response = await assistanceProvider.takeAssistance(body);
+      if (response) {
+        _showMyDialogSuccess();
+      } else {
+        await _showMyDialogError();
+        Navigator.pop(context);
+      }
+    }
+  }
+}
+
+class QRClipper extends CustomClipper<Path> {
+  @override
+  Path getClip(Size size) {
+    double width = 220;
+    double height = 220;
+    double left = (size.width - width) / 2;
+    double top = (size.height - height) / 2;
+
+    Path path = Path()
+      ..addRect(Rect.fromLTWH(0, 0, size.width, size.height))
+      ..addRect(Rect.fromLTWH(left, top, width, height));
+
+    return path..fillType = PathFillType.evenOdd;
+  }
+
+  @override
+  bool shouldReclip(CustomClipper<Path> oldClipper) => false;
 }
