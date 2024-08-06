@@ -39,14 +39,14 @@ class AuthProvider with ChangeNotifier {
     notifyListeners();
 
     try {
-      
+
       final device = await deviceService.getAndroidId();
       final Map<String, dynamic> body = {
         "dni": int.parse(dni),
         "password": password,
         ...device
       };
-      
+
       final response = await _authService.login(body);
 
       //debugPrint("🚀 ~ AuthProvider ~ Future<void>login ~ response:"+response);
@@ -209,13 +209,13 @@ class AuthProvider with ChangeNotifier {
       final response = await _authService.checkUserSession();
       log("🚀 ~ checkUserSession ~ $response");
       if(response['status']){
-         prefs.user = response['data'];
-  
+        prefs.user = response['data'];
+        user = response['data'];
         return true;
       }else{
         return false;
       }
-        
+
     } catch (e) {
       return false;
     }finally {
