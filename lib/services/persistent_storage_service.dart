@@ -47,7 +47,7 @@ class PreferencesUser {
   }
 
    bool get fingerPrint {
-    return prefs.getBool('fingerPrint ')??false;
+    return prefs.getBool('fingerPrint')??false;
   }
   //Setter token
   set fingerPrint (bool value){

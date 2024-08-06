@@ -52,7 +52,7 @@ class MessageError{
 
 
       case 'MESSAGE_DEFAULT':
-        response = "¡Lo sentimos! 😕 No pudimos encontrar al estudiante solicitado. Por favor, verifica el DNI e inténtalo de nuevo.";
+        response = "Oh, no! 😔 Algo salió mal de manera inesperada. Por favor, vuelve a intentarlo en unos momentos.";
         break;
 
 

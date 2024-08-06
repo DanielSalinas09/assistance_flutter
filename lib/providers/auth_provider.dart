@@ -122,7 +122,7 @@ class AuthProvider with ChangeNotifier {
       
       final device = await deviceService.getAndroidId();
       final Map<String, dynamic> body = {
-        "dni": int.parse(prefs.userAuth['dni']),
+        "dni": prefs.userAuth['dni'],
         "password": prefs.userAuth['password'],
         ...device
       };
@@ -133,10 +133,7 @@ class AuthProvider with ChangeNotifier {
 
         prefs.user = response['data'];
         prefs.token = response['token'];
-        prefs.userAuth = {
-          "dni": int.parse(prefs.userAuth['dni']),
-          "password": prefs.userAuth['password'],
-        };
+        
 
         this.user = UserModel.fromJsonMap(prefs.user);
         _isLoadingFingerprint = false;
@@ -160,7 +157,7 @@ class AuthProvider with ChangeNotifier {
       }
       
     } catch (e) {
-      print(e);
+      _errorMessage = MessageError.handleError("");
       return false;
     } finally {
       _isLoading = false;
@@ -175,20 +172,24 @@ class AuthProvider with ChangeNotifier {
       final bool canAuthenticate =
           authBiometrics || await localAuth.isDeviceSupported();
 
-    if(prefs.userAuth.isEmpty || !prefs.fingerPrint){
+    if(prefs.userAuth.isNotEmpty && prefs.fingerPrint){
         prefs.fingerPrint=true;
+       notifyListeners();
+      return true;
+    }else{
+      prefs.fingerPrint=true;
        _errorMessage = '👋 ¡Hola! Por favor, ingresa con tu usuario y contraseña la primera vez. Después, podrás iniciar sesión con tu huella digital. 📲';
        notifyListeners();
-      return false;
+      
     }
 
-    if(canAuthenticate){
-       prefs.fingerPrint=true;
+    if(!canAuthenticate){
+       prefs.fingerPrint=false;
        _errorMessage = '🚫 Lo sentimos, este dispositivo no está habilitado para iniciar sesión con huella digital.';
        notifyListeners();
       return false;
     }
-    return true;
+    return false;
     
   }
 
