@@ -37,7 +37,6 @@ dependencies:
   cupertino_icons: ^1.0.6
   qr_bar_code_scanner_dialog: ^0.0.5
   banner_carousel: ^1.2.1
-  qr_code_scanner: ^1.0.1
   http: ^1.2.2
   provider: ^6.1.2
   shared_preferences: ^2.2.3
@@ -45,6 +44,7 @@ dependencies:
   device_info_plus: ^10.1.1
   local_auth: ^2.2.0
   flutter_native_splash: ^2.4.1
+  mobile_scanner: ^5.1.1
 
 dev_dependencies:
   flutter_test:
