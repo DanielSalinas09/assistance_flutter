@@ -2,6 +2,8 @@ import 'package:assistance_flutter/pages/auth/confirmForgotPassword.dart';
 import 'package:assistance_flutter/pages/auth/forgotPassword.dart';
 import 'package:assistance_flutter/pages/home/home.dart';
 import 'package:assistance_flutter/pages/auth/login.dart';
+import 'package:assistance_flutter/pages/support_contact/support_contact.dart';
+import 'package:assistance_flutter/pages/terms_conditions.dart/terms_conditions.dart';
 import 'package:assistance_flutter/providers/assistance_provider.dart';
 import 'package:assistance_flutter/providers/forgot_password.dart';
 import 'package:assistance_flutter/providers/shedule_prodiver.dart';
@@ -52,6 +54,8 @@ class MyApp extends StatelessWidget {
         '/confirm-forgot-password': (context) => ConfirmForgotPasswordPage(),
         '/home': (context) => const HomePage(),
         '/scanner': (context) => const ScannerPage(),
+        '/terms': (context) =>  const TermsAndConditionsPage(),
+        '/support': (context) =>  const SupportAndContactPage(),
       },
     ));
   }

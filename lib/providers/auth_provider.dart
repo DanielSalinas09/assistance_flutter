@@ -227,5 +227,15 @@ class AuthProvider with ChangeNotifier {
   bool isFingerprintEnabled()  {
     return prefs.fingerPrint;
   }
+
+  Map<String,dynamic>getUser(){
+    return prefs.user;
+  }
+
+  void logout() {
+    prefs.token='';
+    prefs.user={};
+    notifyListeners();
+  }
 }
 

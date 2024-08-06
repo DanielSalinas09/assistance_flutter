@@ -40,7 +40,7 @@ class _SplashScreenState extends State<SplashScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             const Spacer(),
-            const SizedBox(height:30),
+            const SizedBox(height:50),
             Image.asset(
               'assets/unilibre.png',
               height: 200, // Ajusta el tamaño según sea necesario

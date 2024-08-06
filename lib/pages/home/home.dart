@@ -1,4 +1,6 @@
+import 'package:assistance_flutter/helper/format_name.dart';
 import 'package:assistance_flutter/pages/home/widgets/shedule_widget.dart';
+import 'package:assistance_flutter/providers/auth_provider.dart';
 import 'package:assistance_flutter/providers/shedule_prodiver.dart';
 import 'package:banner_carousel/banner_carousel.dart';
 import 'package:flutter/material.dart';
@@ -12,7 +14,6 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-
   @override
   void initState() {
     super.initState();
@@ -21,30 +22,85 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-
   @override
   Widget build(BuildContext context) {
-    
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
     return Scaffold(
-      
       appBar: AppBar(
         backgroundColor: Colors.grey[200],
-        title:  Row(
+        title: Row(
           children: [
             const CircleAvatar(
-              radius: 30,
+              radius: 20,
               backgroundImage: AssetImage('assets/unilibre.png'),
             ),
             const SizedBox(width: 20),
             Consumer<ScheduleProviderModel>(
-              builder: (context, scheduleModel, child) {
-                return Text(
-                  'Hola ${scheduleModel.name}',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                );
-              }
-            )
-            
+                builder: (context, scheduleModel, child) {
+              return Text(
+                'Hola ${scheduleModel.name}',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              );
+            })
+          ],
+        ),
+        
+      ),
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            UserAccountsDrawerHeader(
+              accountName: Text(cutUserName(
+                  "${authProvider.getUser()['name']} ${authProvider.getUser()['surnames']}",
+                  "2")),
+              accountEmail: Text(authProvider.getUser()['email']),
+              currentAccountPicture: const CircleAvatar(
+                backgroundImage: AssetImage('assets/unilibre.png'),
+              ),
+            ),
+            ListTile(
+              selectedColor:Colors.red,
+              leading: const Icon(Icons.check_circle, color: Colors.red),
+              title: const Text('Tomar asistencia'),
+              onTap: () {
+                Navigator.pushNamed(context, '/scanner');
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.lock),
+              title: const Text('Cambiar contraseña'),
+              onTap: () {
+                // Acción para cambiar contraseña
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.description),
+              title: const Text('Términos y condiciones'),
+              onTap: () {
+                // Acción para términos y condiciones
+                Navigator.pushNamed(context, '/terms');
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.support),
+              title: const Text('Support and contact'),
+              onTap: () {
+                // Acción para soporte y contacto
+                Navigator.pushNamed(context, '/support');
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.exit_to_app),
+              title: const Text('Cerrar sesión'),
+              onTap: () {
+                authProvider.logout();
+                Navigator.pushNamedAndRemoveUntil(
+                                            context,
+                                            '/login',
+                                            (Route<dynamic> route) => false);
+              },
+            ),
           ],
         ),
       ),
@@ -56,15 +112,11 @@ class _HomePageState extends State<HomePage> {
               const SizedBox(
                 height: 30,
               ),
-
               BannerCarousel(
                 banners: BannerImages.listBanners,
                 onTap: (id) => print(id),
               ),
-
-  
               const ScheduleWidget()
-  
             ],
           ),
         ),
