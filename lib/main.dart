@@ -3,7 +3,7 @@ import 'package:assistance_flutter/pages/auth/forgotPassword.dart';
 import 'package:assistance_flutter/pages/home/home.dart';
 import 'package:assistance_flutter/pages/auth/login.dart';
 import 'package:assistance_flutter/providers/assistance_provider.dart';
-import 'package:assistance_flutter/providers/confirm_forgot_password.dart';
+import 'package:assistance_flutter/providers/forgot_password.dart';
 import 'package:assistance_flutter/providers/shedule_prodiver.dart';
 import 'package:assistance_flutter/providers/auth_provider.dart';
 import 'package:assistance_flutter/services/persistent_storage_service.dart';
@@ -33,7 +33,7 @@ class MyApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => AssistanceProvider()),
-        ChangeNotifierProvider(create: (_) => ConfirmForgotPasswordProvider()),
+        ChangeNotifierProvider(create: (_) => ForgotPasswordProvider()),
          ChangeNotifierProvider(create: (context) => ScheduleProviderModel()),
       ],
       child:MaterialApp(

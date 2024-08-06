@@ -15,7 +15,7 @@ class LoginPage extends StatelessWidget {
   Widget build(BuildContext context) {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final authProvider = Provider.of<AuthProvider>(context, listen: false);
-      final response = await authProvider.canUseFingerprintLogin();
+      final response = authProvider.isFingerprintEnabled();
       if (response) {
         signInFingerprint(context);
       }

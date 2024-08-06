@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:assistance_flutter/helper/exception.dart';
+import 'package:assistance_flutter/helper/message_error.dart';
 import 'package:assistance_flutter/models/user_model.dart';
 import 'package:assistance_flutter/services/device.service.dart';
 import 'package:assistance_flutter/services/persistent_storage_service.dart';
@@ -48,7 +49,7 @@ class AuthProvider with ChangeNotifier {
       };
       
       final response = await _authService.login(body);
-
+      
       //debugPrint("🚀 ~ AuthProvider ~ Future<void>login ~ response:"+response);
 
       if (response["status"]) {
@@ -62,12 +63,24 @@ class AuthProvider with ChangeNotifier {
         user = UserModel.fromJsonMap(prefs.user);
         return true;
       } else {
-        _errorMessage = response['message'];
+        if(response.containsKey('message') && response['message'] is List){
+
+          List<dynamic> messageArray = response['message'];
+
+          if(messageArray.isNotEmpty){
+             _errorMessage = MessageError.handleError(messageArray[0]);
+          }else{
+             _errorMessage = MessageError.handleError(response['message']);
+          }
+          
+        }else{
+          _errorMessage = MessageError.handleError(response['message']);
+        }
         return false;
       }
     } on AppException catch(err){
       log("🚀 ~ AuthProvider ~ Future<bool>login ~ err: $err");
-      _errorMessage = err.message;
+      _errorMessage = MessageError.handleError('MESSAGE_DEFAULT');
       return false;
     } finally {
       _isLoading = false;
@@ -84,7 +97,7 @@ class AuthProvider with ChangeNotifier {
        
       if (!canAuthenticate) {
         _isLoadingFingerprint = false;
-        _errorMessage = "Lo siento, no se puede autenticar con la huella.";
+        _errorMessage = "No se puede autenticar con la huella dactilar en este momento. 🖐️🔒 revisa la configuración de tu dispositivo.";
         notifyListeners();
         return false;
       }
@@ -99,7 +112,7 @@ class AuthProvider with ChangeNotifier {
 
       if (!isAuthenticated) {
         _isLoadingFingerprint = false;
-        _errorMessage = "La huella no coincide.";
+        _errorMessage = "La huella dactilar no coincide. 🚫🖐️ Por favor, asegúrate de que el sensor esté limpio y vuelve a intentarlo.";
         notifyListeners();
         return false;
       }
@@ -129,7 +142,19 @@ class AuthProvider with ChangeNotifier {
         _isLoadingFingerprint = false;
         return true;
       } else {
-        _errorMessage = 'Usuario o contraseña incorrectos';
+        if(response.containsKey('message') && response['message'] is List){
+
+          List<dynamic> messageArray = response['message'];
+
+          if(messageArray.isNotEmpty){
+             _errorMessage = MessageError.handleError(messageArray[0]);
+          }else{
+             _errorMessage = MessageError.handleError(response['message']);
+          }
+          
+        }else{
+          _errorMessage = MessageError.handleError(response['message']);
+        }
         _isLoadingFingerprint = false;
         return false;
       }
@@ -158,6 +183,7 @@ class AuthProvider with ChangeNotifier {
     }
 
     if(canAuthenticate){
+       prefs.fingerPrint=true;
        _errorMessage = '🚫 Lo sentimos, este dispositivo no está habilitado para iniciar sesión con huella digital.';
        notifyListeners();
       return false;
@@ -166,39 +192,6 @@ class AuthProvider with ChangeNotifier {
     
   }
 
-
-  Future<Map<String,dynamic>>verifyIdentity()async {
-    try {
-
-      final Map<String, dynamic> body = {
-        "dni":234567890,
-        "email":"danielsalinas70sa7@gmail.com"
-      };
-
-      final response = await _authService.forgetPassword(body);
-      return response;
-    } catch (e) {
-      return {"status":false,"message":"Ocurrio un error por favor intentar mas tarde"};
-    }
-  }
-
-
-  Future<bool>forgetPassword()async {
-    try {
-
-      final Map<String, dynamic> body = {
-        "dni":234567890,
-        "email":"danielsalinas70sa7@gmail.com"
-      };
-
-      final response = await _authService.forgetPassword(body);
-       log("🚀 ~ AuthProvider ~ Future<bool>forgetPassword ~ $response:");
-       
-      return true;
-    } catch (e) {
-      return false;
-    }
-  }
 
   Future<bool>checkUserSession() async {
 
@@ -230,4 +223,9 @@ class AuthProvider with ChangeNotifier {
     _visibilityPassword = !_visibilityPassword;
     notifyListeners();
   }
+
+  bool isFingerprintEnabled()  {
+    return prefs.fingerPrint;
+  }
 }
+
