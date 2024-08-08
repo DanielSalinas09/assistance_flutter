@@ -207,6 +207,8 @@ class AuthProvider with ChangeNotifier {
         user = response['data'];
         return true;
       }else{
+        prefs.user={};
+        prefs.token='';
         return false;
       }
 
@@ -226,7 +228,7 @@ class AuthProvider with ChangeNotifier {
   }
 
   bool isFingerprintEnabled()  {
-    return prefs.fingerPrint;
+    return prefs.fingerPrint && prefs.userAuth.isNotEmpty;
   }
 
   Map<String,dynamic>getUser(){

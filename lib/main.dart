@@ -4,10 +4,13 @@ import 'package:assistance_flutter/pages/home/home.dart';
 import 'package:assistance_flutter/pages/auth/login.dart';
 import 'package:assistance_flutter/pages/support_contact/support_contact.dart';
 import 'package:assistance_flutter/pages/terms_conditions.dart/terms_conditions.dart';
+import 'package:assistance_flutter/pages/update_password/update_password.dart';
 import 'package:assistance_flutter/providers/assistance_provider.dart';
+import 'package:assistance_flutter/providers/contact_support_provider.dart';
 import 'package:assistance_flutter/providers/forgot_password.dart';
 import 'package:assistance_flutter/providers/shedule_prodiver.dart';
 import 'package:assistance_flutter/providers/auth_provider.dart';
+import 'package:assistance_flutter/providers/update_password_provider.dart';
 import 'package:assistance_flutter/services/persistent_storage_service.dart';
 import 'package:assistance_flutter/splash_screend.dart';
 import 'package:flutter/material.dart';
@@ -37,6 +40,8 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => AssistanceProvider()),
         ChangeNotifierProvider(create: (_) => ForgotPasswordProvider()),
          ChangeNotifierProvider(create: (context) => ScheduleProviderModel()),
+         ChangeNotifierProvider(create: (context) => ContactSupportProvider()),
+         ChangeNotifierProvider(create: (context) => UpdatePasswordProvider()),
       ],
       child:MaterialApp(
       debugShowCheckedModeBanner: false,
@@ -56,6 +61,7 @@ class MyApp extends StatelessWidget {
         '/scanner': (context) => const ScannerPage(),
         '/terms': (context) =>  const TermsAndConditionsPage(),
         '/support': (context) =>  const SupportAndContactPage(),
+        '/update-password': (context) =>  UpdatePasswordPage(),
       },
     ));
   }

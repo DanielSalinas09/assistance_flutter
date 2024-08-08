@@ -12,7 +12,8 @@ class TermsAndConditionsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Términos y Condiciones'),
+        backgroundColor: Colors.grey[200],
+        surfaceTintColor: Colors.grey[200],
       ),
       body: const Padding(
         padding: EdgeInsets.all(16.0),
@@ -87,7 +88,7 @@ class TermsAndConditionsPage extends StatelessWidget {
               ),
               SizedBox(height: 20),
               Text(
-                'Fecha de última actualización: 6 de agosto de 2024',
+                'Fecha de última actualización: 8 de agosto de 2024',
                 style: TextStyle(fontSize: 14, fontStyle: FontStyle.italic),
               ),
             ],

@@ -1,6 +1,9 @@
 
 
+import 'package:assistance_flutter/providers/auth_provider.dart';
+import 'package:assistance_flutter/providers/contact_support_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class SupportAndContactPage extends StatefulWidget {
 
@@ -27,22 +30,16 @@ class _SupportAndContactPageState extends State<SupportAndContactPage> {
     super.dispose();
   }
 
-  void _submitForm() {
-    if (_formKey.currentState!.validate()) {
-      // Aquí puedes manejar el envío del formulario, por ejemplo, enviarlo a un servidor
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Formulario enviado con éxito')),
-      );
-    }
-  }
+  
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Support and Contact'),
+        backgroundColor: Colors.grey[200],
+        surfaceTintColor: Colors.grey[200],
       ),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Form(
           key: _formKey,
@@ -72,7 +69,7 @@ class _SupportAndContactPageState extends State<SupportAndContactPage> {
                     return null;
                   },
                 ),
-                const SizedBox(height: 16.0),
+                 const SizedBox(height: 8.0),
                 const Text(
                   'Correo Electrónico',
                   style: TextStyle(fontWeight: FontWeight.w700),
@@ -92,7 +89,7 @@ class _SupportAndContactPageState extends State<SupportAndContactPage> {
                     return null;
                   },
                 ),
-                const SizedBox(height: 16.0),
+                 const SizedBox(height: 8.0),
                 const Text(
                   'Número de Documento de Identidad',
                   style: TextStyle(fontWeight: FontWeight.w700),
@@ -110,7 +107,7 @@ class _SupportAndContactPageState extends State<SupportAndContactPage> {
                     return null;
                   },
                 ),
-                const SizedBox(height: 16.0),
+                 const SizedBox(height: 8.0),
                 const Text(
                   'Programa',
                   style: TextStyle(fontWeight: FontWeight.w700),
@@ -128,7 +125,7 @@ class _SupportAndContactPageState extends State<SupportAndContactPage> {
                     return null;
                   },
                 ),
-                const SizedBox(height: 16.0),
+                const SizedBox(height: 8.0),
                 const Text(
                   'Mensaje',
                   style: TextStyle(fontWeight: FontWeight.w700),
@@ -136,7 +133,7 @@ class _SupportAndContactPageState extends State<SupportAndContactPage> {
                 const SizedBox(height: 8),
                 TextFormField(
                   controller: _messageController,
-                  maxLines: 5,
+                  maxLines: 3,
                   decoration: const InputDecoration(
                     border: OutlineInputBorder(),
                   ),
@@ -148,25 +145,97 @@ class _SupportAndContactPageState extends State<SupportAndContactPage> {
                   },
                 ),
                 const SizedBox(height: 32.0),
-                SizedBox(
+                
+                Consumer<ContactSupportProvider>(
+                    builder: (context, contactProvider, child) {
+                      return SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: _submitForm,
+                    onPressed: contactProvider.isLoading
+                    ?null
+                    :()async{
+                      if (_formKey.currentState!.validate()) {
+                          final contactSupportProvider = Provider.of<ContactSupportProvider>(context, listen: false);
+                          final authProvider = Provider.of<AuthProvider>(context, listen: false);
+                          final response = await contactSupportProvider.createSupport(_messageController.text, authProvider.user.id);
+
+                            if(response){
+                              // Aquí puedes manejar el envío del formulario, por ejemplo, enviarlo a un servidor
+                              _clearForm();
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(content: Text('Formulario enviado con éxito')),
+                                );
+                            }else{
+                              showErrorDialog(context);
+                            }
+      
+    }
+                    },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFFEB1A0B),
                       padding: const EdgeInsets.symmetric(vertical: 15),
                     ),
-                    child: const Text(
+                    child:contactProvider.isLoading
+                    ? const SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 3.0,
+                                      valueColor: AlwaysStoppedAnimation<Color>(
+                                          Colors.white),
+                                    ),
+                                  )
+                                : 
+                     const Text(
                       'Enviar',
                       style: TextStyle(color: Colors.white),
                     ),
                   ),
-                ),
+                );
+                    })
+                
               ],
             ),
           ),
         ),
       ),
     );
+  }
+
+
+  Future<void> showErrorDialog(BuildContext context) async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Center(child: Text('¡Error!')),
+          content: const SingleChildScrollView(
+            child: ListBody(
+              children: <Widget>[
+                Text(
+                    'La información no pudo ser enviada con éxito. 📤 Por favor, intenta nuevamente.'),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Aceptar'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _clearForm() {
+    _nameController.clear();
+    _emailController.clear();
+    _idController.clear();
+    _programController.clear();
+    _messageController.clear();
   }
 }

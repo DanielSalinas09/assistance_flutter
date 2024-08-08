@@ -71,7 +71,7 @@ class _HomePageState extends State<HomePage> {
               leading: const Icon(Icons.lock),
               title: const Text('Cambiar contraseña'),
               onTap: () {
-                // Acción para cambiar contraseña
+                Navigator.pushNamed(context, '/update-password');
               },
             ),
             ListTile(
@@ -84,7 +84,7 @@ class _HomePageState extends State<HomePage> {
             ),
             ListTile(
               leading: const Icon(Icons.support),
-              title: const Text('Support and contact'),
+              title: const Text('Contacto y soporte'),
               onTap: () {
                 // Acción para soporte y contacto
                 Navigator.pushNamed(context, '/support');

@@ -47,6 +47,17 @@ class MessageError{
         break;
 
 
+        case 'USER_NOT_FOUND':
+        response = "No se encontró el usuario. 🚫 Por favor, verifica el nombre de usuario e inténtalo de nuevo.";
+        break;
+
+        case 'CURRENT_PASSWORD_INCORRECT':
+        response = "La contraseña actual es incorrecta. 🔒❌ Por favor, verifica e ingrésala nuevamente.";
+        break;
+
+        
+  
+
       
       
 

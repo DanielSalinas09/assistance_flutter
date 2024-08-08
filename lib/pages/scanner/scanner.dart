@@ -226,7 +226,7 @@ class _ScannerPageState extends State<ScannerPage> with WidgetsBindingObserver {
           content: const SingleChildScrollView(
             child: ListBody(
               children: <Widget>[
-                Text('Ha ocurrido un error, por favor intente nuevamente.'),
+                Text('Ha ocurrido un error inesperado mientras procesábamos tu solicitud. 📋🚫 Por favor, inténtalo nuevamente en unos momentos.'),
               ],
             ),
           ),
