@@ -226,7 +226,7 @@ class _ScannerPageState extends State<ScannerPage> with WidgetsBindingObserver {
           content: const SingleChildScrollView(
             child: ListBody(
               children: <Widget>[
-                Text('Ha ocurrido un error, por favor intente nuevamente.'),
+                Text('Este estudiante ya ha registrado su asistencia.'),
               ],
             ),
           ),
@@ -234,7 +234,8 @@ class _ScannerPageState extends State<ScannerPage> with WidgetsBindingObserver {
             TextButton(
               child: const Text('Aceptar'),
               onPressed: () {
-                Navigator.of(context).pop();
+                Navigator.pushNamedAndRemoveUntil(
+                    context, '/home', (Route<dynamic> route) => false);
               },
             ),
           ],
@@ -263,17 +264,20 @@ class _ScannerPageState extends State<ScannerPage> with WidgetsBindingObserver {
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
 
     final Map<String, dynamic> body = {
-      "courseId": qr.barcodes[0].rawValue,
+      "secret": qr.barcodes[0].rawValue,
       "studentId": authProvider.user.id
     };
 
     if (!assistanceProvider.isLoading) {
       final response = await assistanceProvider.takeAssistance(body);
-      if (response) {
+      if (response.status) {
         _showMyDialogSuccess();
-      } else {
-        await _showMyDialogError();
-        Navigator.pop(context);
+      }else{
+        print("response ${response.message}");
+        if (response.message == 'Estudiante ya asistió') {
+          _showMyDialogError();
+        }
+        print("response $response");
       }
     }
   }
