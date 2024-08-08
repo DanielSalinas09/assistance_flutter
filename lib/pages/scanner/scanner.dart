@@ -138,9 +138,7 @@ class _ScannerPageState extends State<ScannerPage> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     final sizeScreen = MediaQuery.of(context).size;
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: Scaffold(
+    return  Scaffold(
           appBar: AppBar(
             title: const Text('Scanner QR'),
             leading: IconButton(
@@ -186,8 +184,7 @@ class _ScannerPageState extends State<ScannerPage> with WidgetsBindingObserver {
                 bottom: 0.0,
                 left: sizeScreen.width * 0.15,
                 child: _buildZoomScaleSlider())
-          ])),
-    );
+          ]));
   }
 
   Future<void> _showMyDialogSuccess() async {
