@@ -19,6 +19,7 @@ class _ScannerPageState extends State<ScannerPage> with WidgetsBindingObserver {
   final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
   double zoomLevel = 1.0;
   bool isloading = false;
+  bool isTakeAssitance = false;
   final MobileScannerController controller = MobileScannerController(
     detectionSpeed: DetectionSpeed.noDuplicates,
     facing: CameraFacing.back,
@@ -138,6 +139,7 @@ class _ScannerPageState extends State<ScannerPage> with WidgetsBindingObserver {
   Widget build(BuildContext context) {
     final sizeScreen = MediaQuery.of(context).size;
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       home: Scaffold(
           appBar: AppBar(
             title: const Text('Scanner QR'),
@@ -206,6 +208,7 @@ class _ScannerPageState extends State<ScannerPage> with WidgetsBindingObserver {
             TextButton(
               child: const Text('Aceptar'),
               onPressed: () {
+                this.isTakeAssitance = false;
                 Navigator.pushNamedAndRemoveUntil(
                     context, '/home', (Route<dynamic> route) => false);
               },
@@ -258,7 +261,6 @@ class _ScannerPageState extends State<ScannerPage> with WidgetsBindingObserver {
   }
 
   void _handleBarcode(BarcodeCapture qr) async {
-    print(qr.barcodes[0].rawValue);
     final assistanceProvider =
         Provider.of<AssistanceProvider>(context, listen: false);
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
@@ -271,11 +273,14 @@ class _ScannerPageState extends State<ScannerPage> with WidgetsBindingObserver {
     if (!assistanceProvider.isLoading) {
       final response = await assistanceProvider.takeAssistance(body);
       if (response.status) {
+        isTakeAssitance = true;
         _showMyDialogSuccess();
       }else{
         print("response ${response.message}");
         if (response.message == 'Estudiante ya asistió') {
-          _showMyDialogError();
+          if(!assistanceProvider.isLoading && !isTakeAssitance){
+            _showMyDialogError();
+          }
         }
         print("response $response");
       }
